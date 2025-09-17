@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "amp-autoshutdown"
+version = "0.1.0"
+description = "Windows service and GUI to automatically shut down AMP game servers when idle"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+authors = [{name = "AMP Auto Shutdown Maintainers", email = "oss@example.com"}]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Games/Entertainment :: Server",
+    "Topic :: System :: Monitoring",
+]
+dependencies = [
+    "requests>=2.31",
+    "PySide6>=6.5",
+    "keyring>=24",
+    "tomli-w>=1.0.0",
+    "pywin32>=306; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+]
+
+[project.scripts]
+amp-autoshutdown = "amp_autoshutdown.__main__:main"
+
+[tool.setuptools]
+packages = ["amp_autoshutdown", "amp_autoshutdown_gui"]
+package-dir = {"amp_autoshutdown" = "src/amp_autoshutdown", "amp_autoshutdown_gui" = "gui"}
+include-package-data = true
+
+[tool.setuptools.package-data]
+"amp_autoshutdown" = ["py.typed"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
