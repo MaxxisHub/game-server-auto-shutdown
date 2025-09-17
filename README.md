@@ -1,23 +1,22 @@
-# AMP Auto Shutdown
+﻿# AMP Auto Shutdown
 
 [![CI](https://github.com/your-org/amp-auto-shutdown/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/amp-auto-shutdown/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-AMP Auto Shutdown installs a Windows service and desktop management app that monitor CubeCoders AMP game server instances. When all monitored instances remain below their player thresholds for the configured idle window, the service powers off the host. The bundled GUI makes it easy to install or remove the service, tune thresholds, review logs, and manage AMP credentials.
+AMP Auto Shutdown bundles a Windows service and desktop manager that monitor CubeCoders AMP game-server instances. When every monitored instance remains below its player threshold for the configured idle window, the service powers off the host. The PySide6 GUI ships in the same executable so administrators can install or remove the service, tweak shutdown rules, and review logs from one place.
 
 ![Main window screenshot](docs/screenshots/main-window.png)
 ![Service status screenshot](docs/screenshots/service-status.png)
 
-## Features
-- Windows service implemented with pywin32 that survives reboots and logs to rotating files.
-- PySide6 GUI for configuring AMP connection details, shutdown thresholds, dry-run mode, and maintenance windows.
-- Secure API key storage via Windows Credential Manager (keyring) when available.
-- Resilient AMP polling with timeouts, retries, and maintenance window suppression to avoid unwanted shutdowns.
-- One-click service management: install, start, stop, uninstall, and log viewer.
-- PyInstaller build script to ship a single EXE that installs the service on first launch and opens the GUI on subsequent runs.
+## Highlights
+- Windows service built with pywin32, configured for automatic start and rotating log output.
+- PySide6 management GUI with connection testing, instance selection, maintenance windows, and dry-run toggle.
+- AMP polling through the REST API with retries, timeouts, and maintenance-window suppression to avoid surprise shutdowns.
+- Secure API-key storage via Windows Credential Manager (`keyring`) when available.
+- PyInstaller build script that produces a single executable containing both the service and GUI.
 
 ## Architecture
-`mermaid
+```mermaid
 graph TD
     Launcher[Single EXE Launcher] -->|--service| ServiceRunner[AmpAutoShutdownService]
     Launcher -->|GUI| GUI[PySide6 Manager]
@@ -30,74 +29,54 @@ graph TD
     AMPClient --> AMPAPI[(AMP REST API)]
     ConfigManager --> ConfigToml[config.toml + keyring]
     Monitor --> WindowsShutdown[/shutdown /s /t 0/]
-`
+```
 
-## Prerequisites
+## Requirements
 - Windows 11 or Windows Server 2019/2022 with desktop experience.
-- AMP instances reachable from the service host with a valid AMP API key.
-- Python 3.11+ if you plan to run from source; otherwise download the packaged EXE.
+- AMP controller reachable over HTTPS with a valid API key.
+- Python 3.11+ (only required when running from source).
 
-## Quick Start (Packaged EXE)
-1. Download AmpAutoShutdown.exe from the project releases page.
-2. Run the EXE as an administrator the first time. The launcher installs the Windows service and opens the GUI.
-3. In the GUI, set the AMP base URL, API key, and polling thresholds. Use **Test Connection** to verify AMP access.
-4. Click **Fetch Instances** to populate available AMP instances, select the ones that should trigger shutdown, and adjust per-instance thresholds if required.
-5. Configure optional maintenance windows and enable or disable dry-run mode.
-6. Click **Save Settings**. The service immediately applies the new configuration.
-7. Use **View Logs** to tail the rolling log file. When the monitored player counts stay at or below the configured thresholds for the idle delay, the host executes shutdown /s /t 0.
+## Using the Packaged EXE
+1. Download `AmpAutoShutdown.exe` from the releases page.
+2. Run the executable as an administrator the first time; it installs the Windows service and immediately opens the GUI.
+3. Enter the AMP base URL, API key, and polling settings. Use **Test Connection** to verify connectivity.
+4. Select the AMP instances to monitor, adjust per-instance thresholds, and configure optional maintenance windows.
+5. Click **Save Settings**. When every monitored instance stays under its threshold for the idle delay, the service issues `shutdown /s /t 0` (unless dry-run is enabled).
+6. Re-launching the executable later skips installation and simply opens the GUI. Use the GUI buttons to start, stop, or uninstall the service.
 
-### Subsequent Launches
-- Running the EXE again simply opens the GUI without touching the installed service.
-- Use the GUI buttons to start, stop, or uninstall the service at any time.
+## Configuration
+Persistent settings live in `%ProgramData%\AmpAutoShutdown\config.toml`. The bundled `config.example.toml` documents every option. Key fields include:
+- `amp_base_url`: AMP controller base URL, for example `https://amp.local:8080`.
+- `poll_interval_seconds`: Interval between AMP polls (default 30).
+- `idle_delay_minutes`: Idle duration that must elapse before shutdown (default 10).
+- `global_player_threshold` and `per_instance_thresholds`: Player counts above which an instance counts as active.
+- `maintenance_windows`: Day/time ranges that suppress shutdown.
+- `dry_run`: When true, the service logs the shutdown decision but does not run the command.
+- `verify_ssl`: Controls TLS certificate checking for AMP requests.
 
-## Configuration File
-Settings are stored in %ProgramData%\AmpAutoShutdown\config.toml. An example with all options is available as config.example.toml.
+API keys are stored with Windows Credential Manager via `keyring` when available; otherwise the GUI will prompt you to save them manually each time.
 
-- mp_base_url: Base URL of the AMP controller, e.g. https://amp.local:8080.
-- poll_interval_seconds: Polling cadence (default 30 seconds).
-- idle_delay_minutes: Required idle duration before shutdown (default 10 minutes).
-- global_player_threshold: Player count that counts as active (default 0).
-- per_instance_thresholds: Optional overrides keyed by instance ID.
-- maintenance_windows: List of day/start/end entries where shutdown is suppressed.
-- dry_run: When true, logs intent but skips the shutdown command.
-- erify_ssl: Toggle TLS certificate verification for the AMP API.
-
-API keys are stored in the Windows Credential Manager through keyring. If keyring is unavailable, the GUI warns you and the API key can be stored in plain text at your discretion.
-
-## Service Behaviour
-- The service starts automatically at boot, reloads the configuration on every polling cycle, and tolerates transient AMP API failures without shutting down the host.
-- Maintenance windows are evaluated in local time and can span midnight.
-- When all monitored instances stay at or below their thresholds for the idle delay, the service runs shutdown /s /t 0. Enable **Dry-run** to verify settings without rebooting the host.
-
-## Building From Source
-`powershell
-# Clone and install dependencies
+## Running from Source
+```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -e .[dev]
+pip install -e .
+python -m amp_autoshutdown --gui
+```
 
-# Run tests
-pytest
-
-# Build single-file EXE
+## Building the Single EXE
+```powershell
 powershell -ExecutionPolicy Bypass -File scripts\build_exe.ps1
-`
-The build script bundles the service and GUI into dist\AmpAutoShutdown.exe using PyInstaller.
-
-## Manual Service Commands (Development)
-`powershell
-# Install using Python interpreter (development only)
-python -m amp_autoshutdown --install-service
-python -m amp_autoshutdown --start-service
-python -m amp_autoshutdown --stop-service
-python -m amp_autoshutdown --uninstall-service
-`
+```
+The script wraps the project with PyInstaller and saves `AmpAutoShutdown.exe` under `dist/`.
 
 ## Logs
-Rolling logs live at %ProgramData%\AmpAutoShutdown\logs\amp_autoshutdown.log. The GUI **View Logs** button opens a simple tail view, or you can open the file in your editor of choice.
+Rolling logs are written to `%ProgramData%\AmpAutoShutdown\logs\amp_autoshutdown.log`. Use the GUI's **View Logs** button or open the file directly.
 
-## Contributing
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and local setup notes. All contributors must abide by the [Code of Conduct](CODE_OF_CONDUCT.md).
+## Project Resources
+- [CONTRIBUTING.md](CONTRIBUTING.md) explains how to propose changes.
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) describes expected community behaviour.
+- [CHANGELOG.md](CHANGELOG.md) tracks feature additions and fixes.
 
 ## License
-Released under the [MIT License](LICENSE).
+Distributed under the [MIT License](LICENSE).
