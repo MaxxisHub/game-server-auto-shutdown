@@ -1,0 +1,33 @@
+# AMP Auto Shutdown configuration example
+# Copy this file to %ProgramData%\AmpAutoShutdown\config.toml and adjust values as needed.
+
+amp_base_url = "https://amp.example.com:8080"
+api_key_alias = "default"  # Identifier used for keyring storage
+poll_interval_seconds = 30
+idle_delay_minutes = 10
+global_player_threshold = 0
+verify_ssl = true
+dry_run = true
+log_level = "INFO"
+
+# Comma separated instance IDs or names that should drive shutdown checks.
+selected_instances = [
+  "minecraft" ,
+  "satisfactory"
+]
+
+# Optional per-instance overrides. If omitted, the global threshold applies.
+[per_instance_thresholds]
+minecraft = 0
+satisfactory = 1
+
+# Maintenance windows suppress shutdown inside the defined day/time ranges.
+[[maintenance_windows]]
+days = ["mon", "tue", "wed", "thu", "fri"]
+start = "01:00"
+end = "05:00"
+
+[[maintenance_windows]]
+days = ["sat", "sun"]
+start = "00:00"
+end = "23:59"
