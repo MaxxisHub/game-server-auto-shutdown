@@ -3,11 +3,19 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$ExecutableFullPath = Join-Path -Path $ScriptDir -ChildPath $ExecutablePath
-if (-not (Test-Path $ExecutableFullPath)) {
-    throw "Executable not found at $ExecutableFullPath"
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$exePath = Resolve-Path -Path (Join-Path $scriptRoot $ExecutablePath) -ErrorAction SilentlyContinue
+
+if (-not $exePath) {
+    $exePath = Join-Path $scriptRoot $ExecutablePath
+    throw "Executable not found at $exePath"
 }
-$ResolvedExe = (Resolve-Path -Path $ExecutableFullPath).ProviderPath
-Write-Host "Installing service using $ResolvedExe" -ForegroundColor Cyan
-& $ResolvedExe --install-service
+
+$exePath = $exePath.ProviderPath
+
+if (-not (Test-Path -Path $exePath)) {
+    throw "Executable not found at $exePath"
+}
+
+Write-Host "Installing service using $exePath" -ForegroundColor Cyan
+& $exePath "--install-service"
