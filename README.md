@@ -57,12 +57,22 @@ Persistent settings live in `%ProgramData%\AmpAutoShutdown\config.toml`. The bun
 API keys are stored with Windows Credential Manager via `keyring` when available; otherwise the GUI will prompt you to save them manually each time.
 
 ## Running from Source
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -e .
-python -m amp_autoshutdown --gui
-```
+1. Create a virtual environment:
+   ```powershell
+   python -m venv .venv
+   ```
+2. Activate the environment (run each command separately):
+   ```powershell
+   .\.venv\Scripts\Activate.ps1
+   ```
+3. Install the project in editable mode:
+   ```powershell
+   pip install -e .
+   ```
+4. Launch the GUI:
+   ```powershell
+   python -m amp_autoshutdown --gui
+   ```
 
 ## Building the Single EXE
 ```powershell
