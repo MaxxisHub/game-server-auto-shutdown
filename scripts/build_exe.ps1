@@ -1,3 +1,4 @@
+[CmdletBinding()]
 param(
     [string]$PythonExe = "python",
     [string]$ExecutableName = "AmpAutoShutdown",
@@ -7,9 +8,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$RepositoryRoot = (Resolve-Path -Path (Join-Path $ScriptDir "..")).Path
-Set-Location $RepositoryRoot
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location $scriptRoot
+
+$repositoryRoot = (Resolve-Path -Path (Join-Path $scriptRoot "..")).Path
+Set-Location $repositoryRoot
 
 Write-Host "Building single-file executable with PyInstaller" -ForegroundColor Cyan
 
@@ -26,7 +29,7 @@ $DataSeparator = if ([System.Runtime.InteropServices.RuntimeInformation]::IsOSPl
 }
 $ConfigData = "config.example.toml${DataSeparator}."
 
-$PyInstallerArgs = @(
+$pyInstallerArgs = @(
     "-m", "PyInstaller",
     "--noconfirm",
     "--clean",
@@ -43,9 +46,10 @@ $PyInstallerArgs = @(
     "src/amp_autoshutdown/__main__.py"
 )
 
-& $PythonExe @PyInstallerArgs
+& $PythonExe @pyInstallerArgs
 if ($LASTEXITCODE -ne 0) {
     throw "PyInstaller build failed with exit code $LASTEXITCODE"
 }
 
-Write-Host "Build complete. Executable located in $DistDir" -ForegroundColor Green
+$distOutputPath = (Resolve-Path -Path $DistDir).Path
+Write-Host "Build complete. Executable located in $distOutputPath" -ForegroundColor Green
