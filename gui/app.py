@@ -10,7 +10,7 @@ from PySide6 import QtCore, QtWidgets
 
 from amp_autoshutdown.api_amp import AMPClient, AMPAPIError
 from amp_autoshutdown.config import Config, ConfigManager, LOG_DIR, MaintenanceWindow
-from . import service_control
+from amp_autoshutdown_gui import service_control
 
 LOGGER = logging.getLogger(__name__)
 

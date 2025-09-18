@@ -75,9 +75,15 @@ API keys are stored with Windows Credential Manager via `keyring` when available
    ```
 
 ## Building the Single EXE
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\build_exe.ps1
-```
+1. Activate your virtual environment so the build script can invoke `python -m PyInstaller` from the environment.
+2. Install PyInstaller inside the environment:
+   ```powershell
+   pip install pyinstaller
+   ```
+3. Run the build script:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\build_exe.ps1
+   ```
 The script wraps the project with PyInstaller and saves `AmpAutoShutdown.exe` under `dist/`.
 
 ## Logs
