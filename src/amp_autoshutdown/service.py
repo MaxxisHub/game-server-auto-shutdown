@@ -18,8 +18,8 @@ except ImportError as exc:  # pragma: no cover - handled at runtime on non-Windo
 else:
     IMPORT_ERROR = None
 
-from .config import ConfigManager
-from .monitor import Monitor
+from amp_autoshutdown.config import ConfigManager
+from amp_autoshutdown.monitor import Monitor
 
 LOGGER = logging.getLogger(__name__)
 

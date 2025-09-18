@@ -8,9 +8,9 @@ from dataclasses import dataclass
 from datetime import datetime, time, timedelta
 from typing import Dict, Optional
 
-from .api_amp import AMPAPIError, AMPClient
-from .config import Config, ConfigManager
-from .logging_setup import configure_logging
+from amp_autoshutdown.api_amp import AMPAPIError, AMPClient
+from amp_autoshutdown.config import Config, ConfigManager
+from amp_autoshutdown.logging_setup import configure_logging
 
 LOGGER = logging.getLogger(__name__)
 SHUTDOWN_COMMAND = ["shutdown", "/s", "/t", "0"]
