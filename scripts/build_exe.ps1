@@ -38,6 +38,7 @@ $PyInstallerArgs = @(
     "--paths", "src",
     "--paths", "gui",
     "--add-data", $ConfigData,
+    "--collect-submodules", "amp_autoshutdown_gui",
     "--collect-all", "PySide6",
     "src/amp_autoshutdown/__main__.py"
 )
