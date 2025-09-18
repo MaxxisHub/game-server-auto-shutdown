@@ -6,8 +6,8 @@ import logging
 import sys
 from pathlib import Path
 
-from .config import ConfigManager
-from .logging_setup import configure_logging
+from amp_autoshutdown.config import ConfigManager
+from amp_autoshutdown.logging_setup import configure_logging
 
 LOGGER = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.service:
-        from .service import run_service
+        from amp_autoshutdown.service import run_service
 
         run_service()
         return 0
