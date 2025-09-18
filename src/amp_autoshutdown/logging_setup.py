@@ -6,7 +6,7 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Optional
 
-from .config import LOG_DIR
+from amp_autoshutdown.config import LOG_DIR
 
 LOG_FILE_NAME = "amp_autoshutdown.log"
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(name)s - %(message)s"
